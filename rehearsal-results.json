@@ -1,0 +1,55 @@
+{
+  "results": [
+    {
+      "at": "2026-11-16T15:19:10.436Z",
+      "stage": "isolated-deployment",
+      "result": "ready; login and scoped cookies verified",
+      "database": "PostgreSQL 18 isolated container",
+      "redis": "Redis 8 isolated container",
+      "reverseProxy": "Caddy 2.11.9",
+      "prefix": "/cprs/"
+    },
+    {
+      "at": "2026-11-16T15:19:13.791Z",
+      "stage": "before-update",
+      "version": "3.50.0",
+      "result": "version, authenticated session, release marker, deep page, browser reload, PWA and unchanged disk HTML verified",
+      "htmlSha256": "b5763f8e6f359fdfe41a1b9645971e318306b89ec9a29388d06cd88f8a0e3d7d"
+    },
+    {
+      "at": "2026-11-16T15:19:15.479Z",
+      "stage": "release-installation",
+      "result": "archive and checksum downloaded; grouped installation completed; restart pending"
+    },
+    {
+      "at": "2026-11-16T15:19:19.517Z",
+      "stage": "after-update",
+      "version": "3.50.1",
+      "result": "version, authenticated session, release marker, deep page, browser reload, PWA and unchanged disk HTML verified",
+      "htmlSha256": "b5763f8e6f359fdfe41a1b9645971e318306b89ec9a29388d06cd88f8a0e3d7d"
+    },
+    {
+      "at": "2026-11-16T15:19:24.072Z",
+      "stage": "after-rollback",
+      "version": "3.50.0",
+      "result": "version, authenticated session, release marker, deep page, browser reload, PWA and unchanged disk HTML verified",
+      "htmlSha256": "b5763f8e6f359fdfe41a1b9645971e318306b89ec9a29388d06cd88f8a0e3d7d"
+    },
+    {
+      "at": "2026-11-16T15:19:24.073Z",
+      "stage": "complete",
+      "result": "actual gateway 3.50.0 -> 3.50.1 -> 3.50.0 succeeded under /cprs/ without rebuilding frontend"
+    }
+  ],
+  "releaseRequests": [
+    "/fixture/runtime-prefix/refs/heads/main/release/version.yaml",
+    "/repos/fixture/runtime-prefix/releases/tags/v3.50.1",
+    "/fixture/runtime-prefix/refs/heads/main/release/version.yaml",
+    "/repos/fixture/runtime-prefix/releases/tags/v3.50.1",
+    "/checksums",
+    "/archive",
+    "/fixture/runtime-prefix/refs/heads/main/release/version.yaml",
+    "/fixture/runtime-prefix/refs/heads/main/release/version.yaml",
+    "/repos/fixture/runtime-prefix/releases/tags/v3.50.1"
+  ]
+}
