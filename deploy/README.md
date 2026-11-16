@@ -559,7 +559,15 @@ docker build -f deploy/Dockerfile.subpath --target runtime \
 `pnpm --dir frontend build --base /cprs/` 完成构建，可改用 `--target runtime-prebuilt`。
 自定义前缀需要同时调整下述 Caddy 路径。
 
-按[手动安装](#手动安装)准备配置、凭据和数据目录。使用独立的子路径 Compose 文件，
+按[手动安装](#手动安装)准备配置、凭据和数据目录。固定的 PostgreSQL 镜像中
+`postgres` 的 UID/GID 为 `999:999`，首次启动前将数据父目录的属主设为该用户，
+否则初始化进程无法遍历挂载目录：
+
+```bash
+sudo chown 999:999 .runtime/postgres
+```
+
+使用独立的子路径 Compose 文件，
 将 `CPR_INGRESS_NETWORK` 设置为现有 Caddy 的容器网络名：
 
 ```bash
