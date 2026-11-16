@@ -544,6 +544,58 @@ Ping/Pong 不延长空闲期限；默认每 5 秒扫描，通常在空闲 300～
 SSE 注释保活用于防止传输链路空闲断开，不会重置 Codex 等待完整 SSE 事件的超时；
 若报错为 `idle timeout waiting for SSE`，再检查客户端的 `stream_idle_timeout_ms`
 
+### Caddy 子路径部署
+
+管理端支持通过构建参数指定路径前缀，默认构建仍使用 `/`。例如将管理页面和模型 API
+部署到 `https://example.com/cprs/`，在仓库根目录构建派生镜像：
+
+```bash
+docker build -f deploy/Dockerfile.subpath --target runtime \
+  --build-arg CPR_WEB_BASE_PATH=/cprs/ \
+  -t codex-proxy-rs:3.49.0-cprs.1 .
+```
+
+派生镜像保留固定版本官方后端与插件，仅替换前端资源。若前端已经使用
+`pnpm --dir frontend build --base /cprs/` 完成构建，可改用 `--target runtime-prebuilt`。
+自定义前缀需要同时调整下述 Caddy 路径。
+
+按[手动安装](#手动安装)准备配置、凭据和数据目录。使用独立的子路径 Compose 文件，
+将 `CPR_INGRESS_NETWORK` 设置为现有 Caddy 的容器网络名：
+
+```bash
+CPR_INGRESS_NETWORK=existing-caddy-network \
+  docker compose -f deploy/compose.subpath.yaml config --quiet
+CPR_INGRESS_NETWORK=existing-caddy-network \
+  docker compose -f deploy/compose.subpath.yaml up -d --wait
+```
+
+该配置使用独立 PostgreSQL 和 Redis，仅应用加入 Caddy 网络，不发布宿主机端口。
+`CPR_IMAGE` 可覆盖应用镜像名，后续重建和停止操作继续使用相同网络变量与 Compose 文件。
+
+将 [Caddy 片段](caddy-subpath.caddy) 加载到现有 Caddy 配置，在站点的 `route` 中、
+其他兜底 `handle` 之前写入 `import cprs_subpath`。Caddy 必须与应用共享容器网络，
+示例通过 `cprs:8080` 回源。片段同时转发 `/cprs/api/*`、`/cprs/v1/*`、
+静态资源与浏览器路由，并将登录和刷新 Cookie 的路径限制在 `/cprs/` 下。
+保留 `Origin` 和鉴权头，HTTPS 证书仍由现有 Caddy 管理。
+
+在现有 `deploy/config.yaml` 的 `host` 下合并以下配置，禁用会覆盖适配前端的系统在线更新：
+
+```yaml
+host:
+  system_update:
+    update_repository: null
+```
+
+更新时重新构建并替换派生镜像。修改版本时同步核对 `Dockerfile.subpath` 中官方镜像的版本和摘要。
+
+管理入口为 `https://example.com/cprs/`。sub2api 的 OpenAI API Key 账号可将
+`base_url` 设置为 `https://example.com/cprs`，密钥填写 CPRS 创建的客户端 Key；
+sub2api 会追加 `/v1/responses`。域名解析和内部 HTTP 接入方式由部署网络决定，
+不要为构建前端修改现有 sub2api 的安全设置。
+
+验收时检查子页面刷新、登录续期、账号头像、模型目录、SSE 与 WebSocket，
+并确认请求始终位于 `/cprs/` 前缀下。默认根路径构建不需要该 Caddy 片段或 Cookie 重写。
+
 ## 客户端配置
 
 在管理端创建客户端密钥。Responses、Chat Completions 和 Anthropic Messages 客户端的 Base URL 见[客户端接入](../README.md#客户端接入)；

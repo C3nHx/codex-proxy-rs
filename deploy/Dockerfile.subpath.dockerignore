@@ -1,0 +1,13 @@
+# 只发送前端和派生构建文件，预构建目标需要保留 frontend/dist
+**
+!frontend
+!frontend/**
+!deploy
+!deploy/Dockerfile.subpath
+
+frontend/node_modules
+frontend/.pnpm-store
+frontend/.pnpm-cache
+frontend/.vite
+**/.env
+**/.env.*

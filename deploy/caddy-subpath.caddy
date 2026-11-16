@@ -1,0 +1,10 @@
+(cprs_subpath) {
+	redir /cprs /cprs/ 308
+
+	handle_path /cprs/* {
+		reverse_proxy cprs:8080 {
+			header_down Set-Cookie "(?i)(;[[:space:]]*Path=)/([^;]*)" "${1}/cprs/${2}"
+			flush_interval -1
+		}
+	}
+}
